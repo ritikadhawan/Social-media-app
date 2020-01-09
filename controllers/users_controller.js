@@ -38,6 +38,7 @@ module.exports.create = (req,res)=>{
 }
 //sign in and create session for user
 module.exports.createSession = (req,res)=>{
+    //sesssion is created by passport all we need to do is redirect to the home page
     
-
+    return res.redirect('/');
 }
