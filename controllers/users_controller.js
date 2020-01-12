@@ -46,3 +46,8 @@ module.exports.createSession = (req,res)=>{
     
     return res.redirect('/');
 }
+//destroyin session in case of sign out
+module.exports.destroySession = (req,res)=>{
+    req.logout();
+    return res.redirect('/');
+}
