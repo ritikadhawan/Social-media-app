@@ -10,6 +10,7 @@ const commentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
+    //comment is done on a post
     post :{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
