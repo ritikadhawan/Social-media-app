@@ -27,6 +27,7 @@
                                 </small>
                             </p>
                             <div class="post-comments">
+                                
                                 <% if (locals.user){ %>
                                     <form action="/comments/create" method="POST" >
                                     
@@ -40,6 +41,10 @@
                                <ul id="post-comments-<%= post._id %>">
                                    <%for(comment of post.comments){%>
                                         <li>
+                                            <% if (locals.user && locals.user.id == comment.user.id){ %>
+                                                <a href="/comments/destroy/<%= comment.id %>">X</a>
+                                            <% } %>
+
                                             <%= comment.content%>
                                             <br>
                                             <small>
