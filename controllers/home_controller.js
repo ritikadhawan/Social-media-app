@@ -15,9 +15,16 @@ module.exports.home = (req,res)=>{
         }
     })
     .exec((err,posts)=>{
-        return res.render('home', {
-            posts: posts,
+
+        User.find({},(err,user)=>{
+
+            return res.render('home', {
+                posts: posts,
+                all_users: user
+            });
         });
+
+        
     });
 
 

@@ -12,7 +12,25 @@ module.exports.signUp = (req,res)=>{
 }
 
 module.exports.profile = (req,res)=>{
-    return res.render('profile');
+    User.findById(req.params.id,(err,user)=>{
+        return res.render('user_profile',{
+            profile_user: user
+        });
+    });
+    
+}
+
+module.exports.update = (req,res)=>{
+    //check if someone changed id in html page 
+    if(req.user.id == req.params.id)
+    {
+        User.findByIdAndUpdate(req.params.id, {name: req.body.name, email: req.body.email}, (err,user)=>{
+            return res.redirect('back');
+        });
+    }
+    else{
+        res.status(401).send('Unauthorized');
+    }
 }
 
 //get sign up data
