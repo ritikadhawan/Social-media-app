@@ -29,6 +29,7 @@ module.exports.update = (req,res)=>{
         });
     }
     else{
+        req.flash('error', 'Unauthorized!');
         res.status(401).send('Unauthorized');
     }
 }
@@ -38,22 +39,24 @@ module.exports.create = (req,res)=>{
     //check if password and confirm_password are same or not
     if(req.body.password != req.body.confirm_password)
     {
+        req.flash('error', 'Passwords do not match');
         return res.redirect('back');
     }
     //check if user is already present or not if not then create one otherwise redirect to sign-in page
     User.findOne({email: req.email},(err,user)=>{
-        if(err){console.log('error in signing up user'); return;}
+        if(err){req.flash('error', err); return;}
 
         if(!user)
         {
             User.create(req.body,(err,user)=>{
-                if(err){console.log('error in creating user while signing up'); return;}
+                if(err){req.flash('error', err); return;}
 
                 return res.redirect('/users/sign-in');
 
             })
         }
         else{
+            req.flash('success', 'You have signed up, login to continue!');
             return res.redirect('back');
         }
     })
@@ -61,11 +64,12 @@ module.exports.create = (req,res)=>{
 //sign in and create session for user
 module.exports.createSession = (req,res)=>{
     //sesssion is created by passport all we need to do is redirect to the home page
-    
+    req.flash('success','Logged in successfully');
     return res.redirect('/');
 }
 //destroyin session in case of sign out
 module.exports.destroySession = (req,res)=>{
     req.logout();
+    req.flash('success','You have logged out');
     return res.redirect('/');
 }
