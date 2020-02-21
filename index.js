@@ -27,13 +27,12 @@ app.use(sassMiddleware({
 app.use(express.urlencoded());
 app.use(cookieParser());
 
+app.use(express.static('./static'));
+
 app.use(expressLayouts);
 //extract styles and scripts from sub pages in layout
 app.set('layout extractStyles', true);
 app.set('layout extractScripts', true);
-
-app.use(express.static('./static'));
-
 
 
 //set up the view engine
