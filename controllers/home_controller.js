@@ -11,6 +11,7 @@ module.exports.home = async (req,res)=>{
         //async-await to get ride of so many callbacks
         //await puts the execution of the next function on hold till this one gets executed
         let posts = await Post.find({})
+        .sort('-createdAt')
         .populate('user')
         .populate({
             path: 'comments',

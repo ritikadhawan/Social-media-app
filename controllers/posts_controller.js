@@ -1,5 +1,6 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const User = require('../models/user');
 module.exports.create = async (req,res)=>{
     //create a new post
     try{
@@ -7,11 +8,14 @@ module.exports.create = async (req,res)=>{
             content: req.body.content,
             user: req.user._id
         });
+        let user = await User.findById(post.user);
+    
         if(req.xhr)
         {
             return res.status(200).json({
                 data: {
-                    post: post
+                    post: post,
+                    userName: user.name
                 },
                 message: 'Post Created'
             });
@@ -38,6 +42,15 @@ module.exports.destroy = async (req,res)=>{
             post.remove();
             //removing comments from db
             await Comment.deleteMany({post: req.params.id});
+            if(req.xhr)
+            {
+                return res.status(200).json({
+                    data: {
+                        post_id: req.params.id
+                    },
+                    message: "Post deleted"
+                });
+            }
             req.flash('success', 'Post deleted');
             return res.redirect('back');
         }

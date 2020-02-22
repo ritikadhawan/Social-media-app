@@ -1,6 +1,6 @@
 const Comment = require('../models/comment');
 const Post = require('../models/post');
-
+const User = require('../models/user');
 module.exports.create = async (req,res)=>{
     //find if the post exist 
     //post id is hidden input in home.ejs form
@@ -17,7 +17,19 @@ module.exports.create = async (req,res)=>{
 
             post.comments.push(comment);
             post.save();
+            let user = await User.findById(comment.user);
+            console.log(user);
+            if(req.xhr)
+            {
+                return res.status(200).json({
+                    data: {
+                        comment: comment,
+                        userName: user.name
 
+                    },
+                    message: 'Comment created'
+                })
+            }
             res.redirect('/');
         }
     }
@@ -40,6 +52,15 @@ module.exports.destroy = async (req,res)=>{
             comment.remove();
             // pull will pull out the comment with id from the comments array of the post
             let post = await Post.findByIdAndUpdate(postId,{ $pull: {comments: req.params.id}});
+            if(req.xhr)
+            {
+                return res.status(200).json({
+                    data: {
+                        comment_id: comment._id
+                    },
+                    message: 'Comment Deleted'
+                });
+            }
             return res.redirect('back');
 
         }

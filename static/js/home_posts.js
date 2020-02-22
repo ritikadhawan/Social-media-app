@@ -11,9 +11,10 @@
                 url: '/posts/create',
                 data: newPostForm.serialize(),
                 success: (data)=>{
-                    console.log(data);
-                    let newPost = newPostDom(data.data.post);
+                    let newPost = newPostDom(data.data.post,data.data.userName);
                     $('#posts-lists-container>ul').prepend(newPost);
+                    deletePost($(' .delete-post-button',newPost)); //passing delete post button inside of newPost to our function with event listener
+                    // req.flash('success', 'Post published');
                 },
                 error: (error)=>{
                     console.log(error.responseText);
@@ -26,16 +27,16 @@
 
     //function to display the post
     //here the person who is making the post is already signed in thus we can remove the checks
-    let newPostDom = (post)=>{
+    let newPostDom = (post,userName)=>{
         return $(`<li id="post-${post._id}">
             <p>
                
-                <a href="/posts/destroy/${post.id}" class="delete-post-button">Delete Post</a>
+                <a href="/posts/destroy/${post._id}" class="delete-post-button">Delete Post</a>
                
                 ${post.content}
                 <br>
                 <small>
-                    ${post.user.name}
+                    ${userName}
                 </small>
             </p>
             <div class="post-comments">
@@ -54,5 +55,29 @@
             </div>
         </li>`);
     }
+    //funciton to delete the post from the dom
+    //it takes the a tag as argument
+    let deletePost = (deleteLink)=>{
+        $(deleteLink).click((e)=>{
+            e.preventDefault();
+            $.ajax({
+                type: 'get',
+                url: $(deleteLink).prop('href'),
+                success: (data)=>{
+                    //data has the id of the post to be deleted
+                    $(`#post-${data.data.post_id}`).remove();
+
+                },
+                error: (error)=>{
+                    console.log(error.responseText);
+                }
+            })
+        });
+    }
     createPosts();
+    
+    for(let i=0;i<$('.delete-post-button').length;i++)
+    {
+        deletePost($('.delete-post-button')[i]);
+    }
 }

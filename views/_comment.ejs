@@ -1,6 +1,6 @@
-<li>
+<li id="comment-<%=comment._id%>">
     <% if (locals.user && locals.user.id == comment.user.id){ %>
-        <a href="/comments/destroy/<%= comment.id %>">X</a>
+        <a href="/comments/destroy/<%= comment.id %>" class="delete-comment-button">X</a>
     <% } %>
 
     <%= comment.content%>
