@@ -11,10 +11,18 @@
                 url: '/posts/create',
                 data: newPostForm.serialize(),
                 success: (data)=>{
-                    let newPost = newPostDom(data.data.post,data.data.userName);
+                    let newPost = newPostDom(data.data.post);
                     $('#posts-lists-container>ul').prepend(newPost);
                     deletePost($(' .delete-post-button',newPost)); //passing delete post button inside of newPost to our function with event listener
-                    // req.flash('success', 'Post published');
+                    new Noty({
+                        theme: 'relax',
+                        text: "Post published!",
+                        type: 'success',
+                        layout: 'topRight',
+                        timeout: 1500
+                        
+                    }).show();
+                    createComment();
                 },
                 error: (error)=>{
                     console.log(error.responseText);
@@ -36,11 +44,11 @@
                 ${post.content}
                 <br>
                 <small>
-                    ${userName}
+                    ${post.user.name}
                 </small>
             </p>
             <div class="post-comments">
-                    <form action="/comments/create" method="POST" >
+                    <form action="/comments/create" class="new-comment-form" method="POST" >
                     
                         <input type="text" id="comment-content" name="content" placeholder="type here to add comment.." required>
                         <input type="hidden" name="post" value="${post._id}">
@@ -66,6 +74,14 @@
                 success: (data)=>{
                     //data has the id of the post to be deleted
                     $(`#post-${data.data.post_id}`).remove();
+                    new Noty({
+                        theme: 'relax',
+                        text: "Post Deleted",
+                        type: 'success',
+                        layout: 'topRight',
+                        timeout: 1500
+                        
+                    }).show();
 
                 },
                 error: (error)=>{

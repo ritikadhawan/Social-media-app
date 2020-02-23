@@ -17,25 +17,26 @@ module.exports.create = async (req,res)=>{
 
             post.comments.push(comment);
             post.save();
-            let user = await User.findById(comment.user);
-            console.log(user);
+            
             if(req.xhr)
             {
+                comment = await comment.populate('user', 'name').execPopulate();
+
                 return res.status(200).json({
                     data: {
-                        comment: comment,
-                        userName: user.name
+                        comment: comment
 
                     },
                     message: 'Comment created'
                 })
             }
+            req.flash('success', 'Comment published!');
             res.redirect('/');
         }
     }
     catch(err)
     {
-        console.log(`Error ${err}`);
+        req.flash('error', err);
         return;
     }
     
@@ -61,17 +62,19 @@ module.exports.destroy = async (req,res)=>{
                     message: 'Comment Deleted'
                 });
             }
+            req.flash('success', 'Comment deleted!');
             return res.redirect('back');
 
         }
         else
         {
+            req.flash('error', 'Unauthorized');
             return res.redirect('back');
         }
     }
     catch(err)
     {
-        console.log(`Error ${err}`);
+        req.flash('error', err);
         return;
     }
     
