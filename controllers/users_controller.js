@@ -20,13 +20,44 @@ module.exports.profile = (req,res)=>{
     
 }
 
-module.exports.update = (req,res)=>{
+module.exports.update = async (req,res)=>{
     //check if someone changed id in html page 
-    if(req.user.id == req.params.id)
-    {
-        User.findByIdAndUpdate(req.params.id, {name: req.body.name, email: req.body.email}, (err,user)=>{
-            return res.redirect('back');
-        });
+    // if(req.user.id == req.params.id)
+    // {
+    //     User.findByIdAndUpdate(req.params.id, {name: req.body.name, email: req.body.email}, (err,user)=>{
+    //         return res.redirect('back');
+    //     });
+    // }
+    // else{
+    //     req.flash('error', 'Unauthorized!');
+    //     res.status(401).send('Unauthorized');
+    // }
+    if(req.user.id == req.params.id){
+        try{
+            //we won't be able to update directly using findByIdAndUpdate as now our form contains multipart data
+            let user = await User.findById(req.params.id);
+            User.uploadedAvatar(req,res,(err)=>{
+                if(err){
+                    console.log(err);
+                    return;
+                }
+                user.name = req.body.name;
+                user.email = req.body.email;
+                if(user.file){
+                    //this is storing the file path and its name in avatar field in our user db model
+                    user.avatar = User.avatarPath + '/' + req.file.filename;
+                }
+                user.save();
+                return res.redirect('back');
+
+            });
+        }
+        catch(err){
+            if(err){
+                req.flash('error',err);
+                return res.redirect('back');
+            }
+        }        
     }
     else{
         req.flash('error', 'Unauthorized!');
