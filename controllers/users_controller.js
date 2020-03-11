@@ -1,4 +1,6 @@
 const User = require('../models/user');
+const path = require('path');
+const fs = require('fs');
 module.exports.signIn = (req,res)=>{
     if(req.isAuthenticated())
         res.redirect('/users/profile');
@@ -21,17 +23,6 @@ module.exports.profile = (req,res)=>{
 }
 
 module.exports.update = async (req,res)=>{
-    //check if someone changed id in html page 
-    // if(req.user.id == req.params.id)
-    // {
-    //     User.findByIdAndUpdate(req.params.id, {name: req.body.name, email: req.body.email}, (err,user)=>{
-    //         return res.redirect('back');
-    //     });
-    // }
-    // else{
-    //     req.flash('error', 'Unauthorized!');
-    //     res.status(401).send('Unauthorized');
-    // }
     if(req.user.id == req.params.id){
         try{
             //we won't be able to update directly using findByIdAndUpdate as now our form contains multipart data
@@ -43,10 +34,14 @@ module.exports.update = async (req,res)=>{
                 }
                 user.name = req.body.name;
                 user.email = req.body.email;
-                if(user.file){
+                if(req.file){
+                    if (user.avatar){
+                        fs.unlinkSync(path.join(__dirname, '..', user.avatar));
+                    }
                     //this is storing the file path and its name in avatar field in our user db model
                     user.avatar = User.avatarPath + '/' + req.file.filename;
                 }
+                console.log(user.avatar);
                 user.save();
                 return res.redirect('back');
 
