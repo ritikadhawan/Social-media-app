@@ -1,6 +1,10 @@
 const Comment = require('../models/comment');
 const Post = require('../models/post');
 const User = require('../models/user');
+const commentMailer = require('../mailers/comments_mailer');
+const queue =  require('../config/kue');
+const commentEmailWorker = require('../workers/comment_email_worker');
+
 module.exports.create = async (req,res)=>{
     //find if the post exist 
     //post id is hidden input in home.ejs form
@@ -17,10 +21,18 @@ module.exports.create = async (req,res)=>{
 
             post.comments.push(comment);
             post.save();
-            
+
+            comment = await comment.populate('user', 'name email').execPopulate();
+            // commentMailer.newComment(comment);  //moved to comment_email worker 
+            let job = queue.create('emails', comment).save((err)=>{
+                if(err){
+                    console.log(`${err} error in creating a queue`);
+                    return;
+                }
+                console.log('job enqueued',job.id);
+            });
             if(req.xhr)
             {
-                comment = await comment.populate('user', 'name').execPopulate();
 
                 return res.status(200).json({
                     data: {
