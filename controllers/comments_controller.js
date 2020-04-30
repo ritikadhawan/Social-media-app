@@ -1,6 +1,7 @@
 const Comment = require('../models/comment');
 const Post = require('../models/post');
 const User = require('../models/user');
+const Like = require('./../models/like');
 const commentMailer = require('../mailers/comments_mailer');
 const queue =  require('../config/kue');
 const commentEmailWorker = require('../workers/comment_email_worker');
@@ -60,11 +61,16 @@ module.exports.destroy = async (req,res)=>{
         //comment can be deleted by the owner of the comment
         if(comment.user == req.user.id)
         {
-            //storing post if of the comment to be deleted before deleting it
+            //storing post id of the comment to be deleted before deleting it
             let postId = comment.post;
             comment.remove();
+
             // pull will pull out the comment with id from the comments array of the post
             let post = await Post.findByIdAndUpdate(postId,{ $pull: {comments: req.params.id}});
+
+            //deleting associated likes 
+            await Like.deleteMany({likeable: req.params.id, onModel: 'Comment'});
+            
             if(req.xhr)
             {
                 return res.status(200).json({

@@ -10,6 +10,14 @@
             <%= post.user.name %>
         </small>
     </p>
+    <p><%-post.likes.length-%></p>
+    <%if (locals.user){ %>
+        <form action="/likes/toggle?id=<%=post._id%>&type=Post" method="POST">
+            <input type="submit" value="Like">
+        </form>
+    <%} else {%>
+        <p>Likes</p>
+    <%}%>
     <div class="post-comments">
         
         <% if (locals.user){ %>
